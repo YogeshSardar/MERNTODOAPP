@@ -1,31 +1,68 @@
-// //register Users
-// // post request
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const User = require("../model/userModel");
+const asyncHandler = require("express-async-handler");
 
-// const registerUser = (req, res) => {
-//   res.json({ message: "Register User" });
-// };
+//register Users
 
-// //register Users 
+const registerUser = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    res.status(400);
+    throw new Error("please add field ");
+  }
 
-// const registerUser = (req, res) => {
-//   res.json({ message: "Register User" });
-// };
+  // ----------------------------------------------check that the user exist
+  const userExits = await User.findOne({ email });
 
-// //register Users 
+  if (userExits) {
+    res.status(400);
+    throw new error("User already exits");
+  }
 
-// const registerUser = (req, res) => {
-//   res.json({ message: "Register User" });
-// };
+  // Hash password
+  const salt = await bcrypt.genSalt(10);
+  // adding hash in password
+  const hashPassword = await bcrypt.hash(password, salt);
+  // create User
+  const user = await User.create({
+    name,
+    email,
+    password: hashPassword,
+  });
+  
 
-// //register Users 
+  if (user)
+  {
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email:user.email,
+    })
+  }
+  else{
+    res.status(400)
+    throw new Error ('Invalid user data')
+  }
+});
 
-// const registerUser = (req, res) => {
-//   res.json({ message: "Register User" });
-// };
 
+//Login User
 
+const loginUser = asyncHandler(async (req, res) => {
+  res.json({ message: "login User" });
+});
 
-// module.exports = {
-//   registerUser,
-// };
+//getMe
 
+const getMe = asyncHandler(async (req, res) => {
+  res.json({ message: "Register User" });
+});
+
+//register Users
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getMe,
+};
